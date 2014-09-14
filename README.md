@@ -9,12 +9,14 @@ How to use
 ----------
 Drop the "admob" directory inside the "modules" directory on the Godot source. Recompile
 
-In example goto Export->Target->Android
+In example goto Export=>Target=>Android:
+
 	Options:
-		Custom Package: place your apk from build
+		Custom Package:
+			- place your apk from build
 		Permissions on:
-			Access Network State
-			Internet
+			- Access Network State
+			- Internet
 
 Configuring your game
 ---------------------
