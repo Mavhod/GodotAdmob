@@ -42,4 +42,7 @@ The following methods are available:
 	int getAdWidth()
 	int getAdHeight()
 
+License
+-------------
+MIT license
 	
