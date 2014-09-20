@@ -1,18 +1,26 @@
 
 extends Node
 
-var adMob
+var admob
+var sizeOld
+var isTop
 
 func _ready():
 	set_process(true)
+	sizeOld		= OS.get_video_mode_size()
+	isTop		= true
 	if(Globals.has_singleton("AdMob")):
-		adMob		= Globals.get_singleton("AdMob")
-		adMob.init(true, true, "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX")	* Place your Ad Unit ID here
-		#var adWidth		= adMob.getAdWidth()
-		#var adHeight	= adMob.getAdHeight()
+		admob		= Globals.get_singleton("AdMob")
+		admob.init(true, isTop, "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX")	[Place your Ad Unit ID and delete this message.]
+		admob.showBanner(true)
 	else:
-		adMob	= null
+		admob	= null
 	
 func _process(delta):
-	if(null != adMob):
-		adMob.showBanner(true)
+	var size	= OS.get_video_mode_size()
+	
+	if( ((sizeOld.x - size.x) != 0) || ((sizeOld.y - size.y) != 0) ):
+		sizeOld	= size
+		if(null != admob):
+			print(admob.getAdWidth(), ", ", admob.getAdHeight())
+			admob.resize(isTop)

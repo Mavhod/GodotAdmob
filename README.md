@@ -41,6 +41,9 @@ The following methods are available:
 	
 	int getAdWidth()
 	int getAdHeight()
+	
+	void resize(boolean isTop)
+		isTop: banner is top of screen or buttom
 
 License
 -------------

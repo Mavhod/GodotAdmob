@@ -8,33 +8,30 @@ import com.google.android.gms.ads.*;
 
 import android.app.Activity;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.view.ViewGroup.LayoutParams;
 import android.provider.Settings;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.Gravity;
-//import android.view.View;
+import android.view.View;
+//import android.widget.LinearLayout;
 //import android.widget.RelativeLayout;
-//import android.widget.FrameLayout;
 //import android.os.Bundle;
 
 public class GodotAdMob extends Godot.SingletonBase
 {
-	private AdView		adView;
-	private Activity		activity;
-	private LinearLayout	layout			= null;
+	private Activity		activity			= null;
+	private AdView		adView			= null;
+	private AdView		adViewW			= null;
+	private AdView		adViewH			= null;
+	private AdRequest		request			= null;
+	private AdListener		adListener			= null;
 	private boolean		isRealAd			= false;
 	private boolean		isAdOnTop		= true;
 	private String			adUnitID			= null;
 	private boolean		isShowBanner		= false;
 	private boolean		isShowBannerArg	= false;
-	
-	/*public int getInt()
-	{
-		return 13579;
-	}*/
-	
+		
 	public int getAdWidth()
 	{
 		return AdSize.SMART_BANNER.getWidthInPixels(activity);
@@ -55,22 +52,16 @@ public class GodotAdMob extends Godot.SingletonBase
 		isRealAd		= isReal;
 		isAdOnTop	= isTop;
 		adUnitID		= id;
+		Log.d("godot", "AdMob: init");
+		
 		activity.runOnUiThread(new Runnable()
 		{
 			@Override public void run()
 			{
-				AdRequest	request;
 
-				adView	= new AdView(activity);
-				adView.setBackgroundColor(Color.TRANSPARENT);
-				adView.setAdUnitId(adUnitID);
-				adView.setAdSize(AdSize.SMART_BANNER);
-				
 				if(isRealAd)
 				{
-					request	= new AdRequest.Builder()
-						//.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-						.build();
+					request	= new AdRequest.Builder().build();
 				}
 				else
 				{
@@ -79,29 +70,12 @@ public class GodotAdMob extends Godot.SingletonBase
 						.addTestDevice(getAdmobDeviceId())
 						.build();
 				}
-
-				AdListener		adListener	= new AdListener()
+				
+				adListener		= new AdListener()
 				{
 					@Override public void onAdLoaded()
 					{
 						Log.d("godot", "AdMob: OnAdLoaded");
-						if(layout == null)
-						{
-							activity.runOnUiThread(new Runnable()
-							{
-								@Override public void run()
-								{
-									FrameLayout.LayoutParams	adParams =
-										new FrameLayout.LayoutParams(
-											FrameLayout.LayoutParams.MATCH_PARENT,
-											FrameLayout.LayoutParams.WRAP_CONTENT);
-									if(isAdOnTop)	adParams.gravity	= Gravity.TOP;
-									else			adParams.gravity	= Gravity.BOTTOM;
-									layout	= new LinearLayout(activity);
-									activity.addContentView(layout, adParams	);
-								}
-							});
-						}
 					}
 					
 					@Override public void onAdFailedToLoad(int errorCode)
@@ -129,8 +103,8 @@ public class GodotAdMob extends Godot.SingletonBase
 						Log.w("godot", "AdMob: onAdFailedToLoad->" + str);
 					}
 				};
-				adView.setAdListener(adListener);
-				adView.loadAd(request);
+				
+				setBannerView();
 			}
 		});
 	}
@@ -143,22 +117,102 @@ public class GodotAdMob extends Godot.SingletonBase
 		{
 			@Override public void run()
 			{
-				if(null == layout)					return;
 				if(isShowBanner == isShowBannerArg)	return;
 				
 				isShowBanner	= isShowBannerArg;
-				if(isShowBanner)
-				{
-					layout.addView(adView);
-					Log.d("godot", "AdMob: Show Banner");
-				}
-				else
-				{
-					layout.removeAllViews();
-					Log.d("godot", "AdMob: Hide Banner");
-				}
+				setShowBanner(isShowBanner);
 			}
 		});
+	}
+	
+	public void resize(boolean isTop)
+	{
+		isAdOnTop	= isTop;
+		activity.runOnUiThread(new Runnable()
+		{
+			@Override public void run()
+			{
+				setBannerView();
+			}
+		});
+	}
+	
+	private void setShowBanner(boolean isShow)
+	{
+		if(isShow)
+		{
+			adView.setVisibility(View.VISIBLE);
+			adView.resume();
+			Log.d("godot", "AdMob: Show Banner");
+		}
+		else
+		{
+			adView.setVisibility(View.GONE);
+			adView.pause();
+			Log.d("godot", "AdMob: Hide Banner");
+		}
+	}
+	
+	private AdView setAdView()
+	{
+		int		w		= activity.getWindow().getDecorView().getWidth();
+		int		h		= activity.getWindow().getDecorView().getHeight();
+		boolean	isCreate	= true;
+		
+		if(w > h)	// Landscape
+		{
+			if(null != adViewW)
+			{
+				isCreate	= false;
+				adView	= adViewW;
+			}
+		}
+		else		// Portrait
+		{
+			if(null != adViewH)
+			{
+				isCreate	= false;
+				adView	= adViewH;
+			}
+		}
+	
+		if(isCreate)
+		{
+			adView	= new AdView(activity);
+			adView.setBackgroundColor(Color.TRANSPARENT);
+			adView.setAdUnitId(adUnitID);
+			adView.setAdSize(AdSize.SMART_BANNER);
+			adView.setAdListener(adListener);
+			adView.loadAd(request);
+			setShowBanner(false);
+			
+			if(w > h)	adViewW		= adView;
+			else		adViewH		= adView;
+		}
+		
+		return adView;
+	}
+	
+	private void setBannerView()
+	{	
+		FrameLayout	layout	= ((Godot)activity).layout;
+		
+		FrameLayout.LayoutParams	adParams	= new FrameLayout.LayoutParams(
+			FrameLayout.LayoutParams.MATCH_PARENT,
+			FrameLayout.LayoutParams.WRAP_CONTENT);
+			
+		if(isAdOnTop)	adParams.gravity	= Gravity.TOP;
+		else			adParams.gravity	= Gravity.BOTTOM;
+		
+		if(null != adView)
+		{
+			setShowBanner(false);
+			layout.removeView(adView);
+		}
+
+		setAdView();
+		layout.addView(adView, adParams);
+		setShowBanner(isShowBanner);
 	}
 	
 	private String md5(final String s)
@@ -204,7 +258,7 @@ public class GodotAdMob extends Godot.SingletonBase
 	{
 		registerClass("AdMob", new String[]
 		{
-			"init", "showBanner", "getAdWidth", "getAdHeight"//, "getInt"
+			"init", "showBanner", "getAdWidth", "getAdHeight", "resize"
 		});
 		activity		= p_activity;
 	}
