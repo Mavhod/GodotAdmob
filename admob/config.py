@@ -3,7 +3,8 @@ def can_build(plat):
 
 def configure(env):
 	if (env['platform'] == 'android'):
-		env.android_module_file("android/GodotAdMob.java")
-		env.android_module_manifest("android/AndroidManifestChunk.xml")
+		env.android_add_dependency("compile 'com.google.android.gms:play-services-ads:+'")
+		#env.android_add_java_dir("android/java/src")
+		env.android_add_to_manifest("android/AndroidManifestChunk.xml")
 		env.disable_module()
 

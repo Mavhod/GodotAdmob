@@ -1,5 +1,5 @@
 
-package com.android.godot;
+package org.godotengine.godot;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -58,18 +58,20 @@ public class GodotAdMob extends Godot.SingletonBase
 		{
 			@Override public void run()
 			{
+				//if(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN)
+				//{
+				//	activity.getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+				//		android.view.WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+				//}
 
-				if(isRealAd)
+				AdRequest.Builder	adBuilder	= new AdRequest.Builder();
+				adBuilder.tagForChildDirectedTreatment(true);
+				if(!isRealAd)
 				{
-					request	= new AdRequest.Builder().build();
+					adBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+					adBuilder.addTestDevice(getAdmobDeviceId());
 				}
-				else
-				{
-					request	= new AdRequest.Builder()
-						.addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-						.addTestDevice(getAdmobDeviceId())
-						.build();
-				}
+				request		= adBuilder.build();
 				
 				adListener		= new AdListener()
 				{
@@ -141,6 +143,7 @@ public class GodotAdMob extends Godot.SingletonBase
 	{
 		if(isShow)
 		{
+			//adView.loadAd(request);
 			adView.setVisibility(View.VISIBLE);
 			adView.resume();
 			Log.d("godot", "AdMob: Show Banner");
@@ -148,6 +151,7 @@ public class GodotAdMob extends Godot.SingletonBase
 		else
 		{
 			adView.setVisibility(View.GONE);
+			//adView.destroy();
 			adView.pause();
 			Log.d("godot", "AdMob: Hide Banner");
 		}
@@ -188,6 +192,8 @@ public class GodotAdMob extends Godot.SingletonBase
 			
 			if(w > h)	adViewW		= adView;
 			else		adViewH		= adView;
+
+			//Log.d("godot", "AdMob: View is hardware = " + adView.isHardwareAccelerated());
 		}
 		
 		return adView;
@@ -214,6 +220,11 @@ public class GodotAdMob extends Godot.SingletonBase
 		layout.addView(adView, adParams);
 		setShowBanner(isShowBanner);
 	}
+	
+	/*@Override protected void onMainDestroy()
+	{
+		Log.d("godot", "AdMob: Destroy");
+	}*/
 	
 	private String md5(final String s)
 	{
