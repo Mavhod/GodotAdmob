@@ -8,7 +8,7 @@ How to use
 ----------
 Drop the "admob" directory inside the "modules" directory on the Godot source.
 
-Move file GodotAdMob.java from "admob/android" to "platform/android/java/src/org/godotengine/godot".
+Move file GodotAdMob.java from "admob/android/" to "platform/android/java/src/org/godotengine/godot/".
 
 Recompile.
 
