@@ -12,18 +12,6 @@ Drop the "admob" directory inside the "modules" directory on the Godot source.
 
 Recompile.
 
-For changing build from ant to gradle:
-
-	old method (not use this command)
-	ant release
-	
-	new method (use this command)
-	./gradlew build
-
-new place of apk file will be there
-
-	godot/platform/android/java/build/outputs/apk/java-release-unsigned.apk
-
 
 In Example project goto Export->Target->Android:
 
