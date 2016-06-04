@@ -1,15 +1,31 @@
 AdMob
 =====
-
 This is the AdMob module for Godot Engine (https://github.com/okamstudio/godot)
 - Android only
 - Banner only (hasn't Interstitial)
-
+ 
 How to use
 ----------
-Drop the "admob" directory inside the "modules" directory on the Godot source. Recompile
+Drop the "admob" directory inside the "modules" directory on the Godot source.
 
-In example goto Export->Target->Android:
+~~Move file GodotAdMob.java from "admob/android/" to "platform/android/java/src/org/godotengine/godot/".~~
+
+Recompile.
+
+For changing build from ant to gradle:
+
+	old method (not use this command)
+	ant release
+	
+	new method (use this command)
+	./gradlew build
+
+new place of apk file will be there
+
+	godot/platform/android/java/build/outputs/apk/java-release-unsigned.apk
+
+
+In Example project goto Export->Target->Android:
 
 	Options:
 		Custom Package:
@@ -24,7 +40,7 @@ Configuring your game
 To enable the module on Android, add the path to the module to the "modules" property on the [android] section of your engine.cfg file. It should look like this:
 
 	[android]
-	modules="com/android/godot/GodotAdMob"
+	modules="org/godotengine/godot/GodotAdMob"
 
 API Reference
 -------------
